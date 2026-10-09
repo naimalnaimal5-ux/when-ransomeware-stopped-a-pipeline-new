@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Defend the Pipeline: Interactive Prototype</title>
+<style>
+:root{--bg:#0a1128;--card:#13204a;--tx:#fff;--mu:#9fb3d9;--cy:#00e5ff;--gr:#39ff88;--rd:#ff3d71;--grid:rgba(0,229,255,.06);--glow:rgba(0,229,255,.18);--off:#2b3a6b;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f1f6ff;--card:#fff;--tx:#0a1128;--mu:#46577d;--cy:#0077c8;--gr:#0a8a4a;--rd:#d6264f;--grid:rgba(0,80,160,.07);--glow:rgba(0,119,200,.15);--off:#b9c6e3}}
+:root[data-theme="light"]{--bg:#f1f6ff;--card:#fff;--tx:#0a1128;--mu:#46577d;--cy:#0077c8;--gr:#0a8a4a;--rd:#d6264f;--grid:rgba(0,80,160,.07);--glow:rgba(0,119,200,.15);--off:#b9c6e3}
+:root[data-theme="dark"]{--bg:#0a1128;--card:#13204a;--tx:#fff;--mu:#9fb3d9;--cy:#00e5ff;--gr:#39ff88;--rd:#ff3d71;--grid:rgba(0,229,255,.06);--glow:rgba(0,229,255,.18);--off:#2b3a6b}
+*{box-sizing:border-box}
+body{margin:0;font-family:Calibri,"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--tx);line-height:1.5;min-height:100vh;
+background-image:radial-gradient(circle at 90% -5%,var(--glow),transparent 45%),linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:auto,40px 40px,40px 40px;background-attachment:fixed}
+main{max-width:1050px;margin:0 auto;padding:36px 5vw 60px}
+.tag{color:var(--cy);letter-spacing:.2em;font-size:.78rem;font-weight:700}
+h1{font-size:clamp(1.8rem,5vw,2.8rem);margin:.2em 0;line-height:1.1}
+.lead{color:var(--mu);max-width:640px;margin:0 0 24px}
+.cols{display:grid;gap:20px;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr)}
+@media(max-width:760px){.cols{grid-template-columns:1fr}}
+.panel{background:var(--card);border:1px solid var(--cy);border-radius:6px;padding:20px}
+h2{font-size:1.1rem;margin:0 0 14px;color:var(--cy)}
+.def{display:flex;gap:14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--grid);cursor:pointer}
+.def:last-of-type{border-bottom:0}
+.def b{display:block}.def small{color:var(--mu)}
+.sw{flex:none;width:46px;height:26px;border-radius:13px;background:var(--off);position:relative;transition:.2s}
+.sw:after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.def.on .sw{background:var(--gr)}.def.on .sw:after{left:23px}
+.meter{height:8px;border-radius:4px;background:var(--off);margin:6px 0 16px;overflow:hidden}
+.meter i{display:block;height:100%;width:0;background:var(--gr);transition:.3s}
+.btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+button{font:inherit;font-weight:700;padding:11px 18px;border-radius:5px;border:1px solid var(--cy);background:transparent;color:var(--cy);cursor:pointer}
+button.go{background:var(--rd);border-color:var(--rd);color:#fff}
+button:disabled{opacity:.5;cursor:not-allowed}
+.step{display:flex;gap:14px;padding:12px;border:1px solid var(--off);border-radius:5px;margin-bottom:10px;opacity:.55;transition:.3s}
+.step .n{flex:none;width:30px;height:30px;border-radius:50%;background:var(--off);display:grid;place-items:center;font-weight:700;color:#fff}
+.step b{display:block}.step small{color:var(--mu)}
+.step.run{opacity:1;border-color:var(--cy)}.step.run .n{background:var(--cy);color:#000}
+.step.hit{opacity:1;border-color:var(--rd)}.step.hit .n{background:var(--rd)}.step.hit small{color:var(--rd)}
+.step.blk{opacity:1;border-color:var(--gr)}.step.blk .n{background:var(--gr);color:#000}.step.blk small{color:var(--gr)}
+#res{margin-top:20px;display:none}
+.verdict{font-size:1.4rem;font-weight:700;margin-bottom:12px}
+.met{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.met div{background:var(--bg);border-radius:5px;padding:10px;text-align:center}
+.met b{display:block;font-size:1.25rem;color:var(--cy)}.met span{font-size:.8rem;color:var(--mu)}
+.note{color:var(--mu);font-size:.85rem;margin-top:14px}
+</style>
+</head>
+<body>
+<main>
+<div class="tag">INTERACTIVE PROTOTYPE</div>
+<h1>Defend the Pipeline</h1>
+<p class="lead">Based on the 2021 Colonial Pipeline attack. Switch security controls on or off, then launch the attack and see how far it gets. With everything off, you get what really happened.</p>
+<div class="cols">
+<div class="panel">
+<h2>Your defenses</h2>
+<div class="def" data-k="mfa"><div class="sw"></div><div><b>Multi-Factor Authentication</b><small>Second factor on every VPN login</small></div></div>
+<div class="def" data-k="seg"><div class="sw"></div><div><b>Network Segmentation</b><small>IT kept apart from operations</small></div></div>
+<div class="def" data-k="bak"><div class="sw"></div><div><b>Offline Backups</b><small>Tested copies you can restore from</small></div></div>
+<div class="def" data-k="ir"><div class="sw"></div><div><b>Incident Response Plan</b><small>Monitoring and fast containment</small></div></div>
+<div style="margin-top:14px;font-size:.85rem;color:var(--mu)">Security level: <span id="lvl">0</span>/4</div>
+<div class="meter"><i id="bar"></i></div>
+<div class="btns"><button class="go" id="go">Launch attack</button><button id="all">Enable all</button><button id="rst">Reset</button></div>
+</div>
+<div class="panel">
+<h2>Attack chain</h2>
+<div id="steps"></div>
+</div>
+</div>
+<div class="panel" id="res">
+<div class="verdict" id="vd"></div>
+<div class="met"><div><b id="m1"></b><span>Pipeline downtime</span></div><div><b id="m2"></b><span>Ransom paid</span></div><div><b id="m3"></b><span>Data stolen</span></div></div>
+<p class="note" id="why"></p>
+</div>
+<p class="note">Educational simulation. Outcomes are simplified for learning.</p>
+</main>
+<script>
+var D={mfa:false,seg:false,bak:false,ir:false},busy=false;
+var S=[
+{t:'Credentials leaked',h:'An old VPN password is found by the attacker.',b:null},
+{t:'VPN login',h:'Logged in with the password alone.',b:'mfa',bt:'MFA code required. Login denied.'},
+{t:'Spread to critical systems',h:'About 100 GB stolen and the network is mapped.',b:'seg',bt:'Segmentation traps the attacker in the IT zone.'},
+{t:'Ransomware deployed',h:'IT systems are encrypted and a ransom note appears.',b:'ir',bt:'Monitoring alerts the team. Infected systems isolated.'},
+{t:'Business impact',h:'Pipeline shut down for 6 days and a $4.4M ransom paid.',b:'bak',bt:'Systems restored from offline backups. No ransom paid.'}
+];
+var el=document.getElementById('steps');
+function draw(){
+ el.innerHTML=S.map(function(s,i){return '<div class="step" id="s'+i+'"><div class="n">'+(i+1)+'</div><div><b>'+s.t+'</b><small>Waiting...</small></div></div>'}).join('');
+ document.getElementById('res').style.display='none';
+}
+function lvl(){
+ var n=Object.keys(D).filter(function(k){return D[k]}).length;
+ document.getElementById('lvl').textContent=n;
+ document.getElementById('bar').style.width=(n*25)+'%';
+}
+document.querySelectorAll('.def').forEach(function(d){
+ d.onclick=function(){if(busy)return;var k=d.dataset.k;D[k]=!D[k];d.classList.toggle('on',D[k]);lvl();draw()}
+});
+function setAll(v){if(busy)return;document.querySelectorAll('.def').forEach(function(d){D[d.dataset.k]=v;d.classList.toggle('on',v)});lvl();draw()}
+document.getElementById('all').onclick=function(){setAll(true)};
+document.getElementById('rst').onclick=function(){setAll(false)};
+function setStep(i,cls,txt){var e=document.getElementById('s'+i);e.className='step '+cls;e.querySelector('small').textContent=txt}
+document.getElementById('go').onclick=function(){
+ if(busy)return;busy=true;this.disabled=true;draw();
+ var m={down:'0 days',ran:'$0',data:'None'},verdict='',color='',why='',i=0,stopped=false;
+ function next(){
+  if(i>=S.length||stopped){finish();return}
+  var s=S[i],k=i;setStep(k,'run','Attacking...');
+  setTimeout(function(){
+   if(s.b&&D[s.b]){
+    setStep(k,'blk',s.bt);stopped=true;
+    if(s.b==='mfa'){verdict='Attack prevented';color='var(--gr)';why='MFA stopped the attacker at the front door, so a stolen password alone was useless.'}
+    if(s.b==='seg'){verdict='Attack contained';color='var(--gr)';why='The attacker got in but could not reach operations, so fuel kept flowing.'}
+    if(s.b==='ir'){verdict='Attack contained';color='var(--gr)';m.down='Minimal';m.data='~100 GB';why='Early detection isolated the infection before systems were encrypted. Stolen data is still a risk.'}
+    if(s.b==='bak'){verdict='Recovered without paying';color='#ffc107';m.down='~1 day';m.data='~100 GB';why='Backups allowed recovery, but the attack still caused disruption and data theft.'}
+   }else{
+    setStep(k,'hit',s.h);
+    if(k===2)m.data='~100 GB';
+    if(k===4){m.down='6 days';m.ran='$4.4M';verdict='Pipeline shut down';color='var(--rd)';why='This is the real 2021 outcome: one missing control after another let the attack succeed.'}
+   }
+   i++;setTimeout(next,700);
+  },800);
+ }
+ function finish(){
+  for(var j=i;j<S.length;j++)setStep(j,'','Not reached');
+  document.getElementById('vd').textContent=verdict;document.getElementById('vd').style.color=color;
+  document.getElementById('m1').textContent=m.down;document.getElementById('m2').textContent=m.ran;document.getElementById('m3').textContent=m.data;
+  document.getElementById('why').textContent=why;document.getElementById('res').style.display='block';
+  busy=false;document.getElementById('go').disabled=false;
+ }
+ next();
+};
+draw();lvl();
+</script>
+</body>
+</html>
